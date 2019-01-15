@@ -1,0 +1,66 @@
+project_name: cyberd-wiki
+
+builds:
+  -
+    main: ./
+    binary: cyberd-wiki
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+
+
+release:
+  name_template: "{{ .ProjectName }}-v{{ .Version }}"
+
+checksum:
+  name_template: 'checksums.txt'
+
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+    - '^docs:'
+    - '^test:'
+    - '^CI:'
+    - '^Merge'
+
+
+nfpm:
+  name_template: '{{ .ProjectName }}_{{ .Os }}_{{ .Version }}'
+  replacements:
+    darwin: macOS
+    386: i386
+    amd64: x86_64
+  homepage:  https://github.com/cybercongress
+  description: Distributed search engine
+  maintainer: Cyber Admin <cybercongress42@gmail.com>
+  license: MIT
+  vendor: cyber.Congress
+  formats:
+    - deb
+    - rpm
+  dependencies:
+    - git
+  recommends:
+    - rpm
+
+
+archive:
+  name_template: '{{ .ProjectName }}_{{ .Os }}_{{ .Version }}'
+  replacements:
+    darwin: MacOS
+    linux: Linux
+    windows: Windows
+    386: i386
+    amd64: x86_64
+  format: zip
+  format_overrides:
+    - goos: linux
+      format: tar.gz
+  wrap_in_directory: true
+  files:
+    - none*
