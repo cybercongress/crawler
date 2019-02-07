@@ -1,4 +1,4 @@
-package reader
+package ipfs
 
 import (
 	links "github.com/cybercongress/cyberd/x/link/types"
