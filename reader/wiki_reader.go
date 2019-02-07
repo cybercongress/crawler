@@ -2,6 +2,7 @@ package reader
 
 import (
 	"bufio"
+	"io"
 	"os"
 	"regexp"
 	"strings"
@@ -34,11 +35,38 @@ func Open(path string) (reader WikiTitlesReader, err error) {
 func (wtr WikiTitlesReader) NextTitle() (string, error) {
 	line, err := wtr.readLine()
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 	// row example: `0	"Blind_Lemon"_Jefferson\n`
 	// remove new line character `\n` and first column `0`
 	return strings.Split(strings.TrimSuffix(line, "\n"), "\t")[1], nil
+}
+
+func (wtr WikiTitlesReader) NextTitles(maxCount int) ([]string, error, bool) {
+
+	i := 0
+	titles := []string{}
+	hasMore := true
+
+	for {
+
+		if i == maxCount {
+			break
+		}
+
+		title, err := wtr.NextTitle()
+		if err != nil {
+			if err == io.EOF {
+				hasMore = false
+				break
+			}
+			return []string{}, err, hasMore
+		}
+
+		i++
+		titles = append(titles, title)
+	}
+	return titles, nil, hasMore
 }
 
 // title example: `"Blind_Lemon"_Jefferson`

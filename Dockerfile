@@ -1,9 +1,9 @@
 FROM ipfs/go-ipfs:v0.4.18
 
-RUN ipfs init --profile=badgerds,lowpower,local-discovery && \
+RUN ipfs init --profile=badgerds && \
     ipfs config --json Datastore.NoSync true && \
-    ipfs config Reprovider.Interval "0" && \
-    ipfs config --json Experimental.FilestoreEnabled true
+    ipfs config --json Experimental.ShardingEnabled true && \
+    ipfs config Reprovider.Interval "0"
 
 ENTRYPOINT ["/sbin/tini", "--", "/usr/local/bin/start_ipfs"]
-CMD ["daemon", "--offline"]
+CMD ["daemon", "--routing=dhtclient"]

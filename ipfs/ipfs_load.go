@@ -1,26 +1,75 @@
 package ipfs
 
 import (
+	"github.com/cybercongress/cyberd-wiki-index/reader"
+	"github.com/ipfs/go-ipfs-files"
 	"github.com/spf13/cobra"
+	"log"
+	"strconv"
 )
 
-/*
-   Command should make chunks of 100k titles, and than final recursive batch of merges by mv commands.
-
-	()   () ()   ()
-     \   /   \   /
-      ( )     ( )
-        \     /
-        (     )
-
-*/
-// Command should persist progress(state) to deal with restarts
 func UploadDurasToIpfsCmd() *cobra.Command {
 	cmd := cobra.Command{
-		Use: "upload-duras-to-ipfs",
+		Use:  "upload-duras-to-ipfs <path-to-wiki-titles-file>",
+		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 
-			return nil
+			chunkSize := 100000
+
+			ipfs := Open()
+			wikiReader, err := reader.Open(args[0])
+			if err != nil {
+				return err
+			}
+
+			hashes := []string{}
+			for {
+
+				log.Println("Loading duras")
+				duras := make([]string, 0, chunkSize)
+				titles, err, hasMore := wikiReader.NextTitles(chunkSize)
+
+				if err != nil {
+					return err
+				}
+
+				for _, title := range titles {
+					duras = append(duras, title+".wiki")
+				}
+
+				log.Println("Creating virtual dirs")
+				rootDir := getAsDirHierarchy(duras, 500)
+				mfReader := files.NewMultiFileReader(rootDir, true)
+
+				log.Println("Sending request")
+				hash, err := ipfs.AddMultiFile(mfReader)
+				if err != nil {
+					return err
+				}
+
+				log.Println("Getting hash: " + hash)
+				hashes = append(hashes, hash)
+				if hasMore == false || len(hashes) == 3 {
+					break
+				}
+			}
+
+			dirPath := "/wiki-duras/"
+			err = ipfs.CreateDir(dirPath)
+			if err != nil {
+				return err
+			}
+
+			for i, hash := range hashes {
+				err = ipfs.AddFileToDir(hash, dirPath+strconv.Itoa(i))
+				if err != nil {
+					return err
+				}
+			}
+
+			stat, err := ipfs.DirStat(dirPath)
+			log.Println("Final stats:\n" + stat)
+			return err
 		},
 	}
 	return &cmd
