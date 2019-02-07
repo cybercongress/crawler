@@ -90,7 +90,7 @@ func (wtr WikiTitlesReader) NextTitleWithKeywords() (string, []string, error) {
 	// select each words separately
 	words := strings.Split(title, wikiSpaceDelimiter)
 	for _, word := range words {
-		keywords = append(keywords, selectNonLettersRegexp.ReplaceAllString(word, ""))
+		keywords = append(keywords, strings.ToLower(selectNonLettersRegexp.ReplaceAllString(word, "")))
 	}
 
 	var filteredKeywords []string
@@ -115,6 +115,7 @@ func nameKeywords(name string) []string {
 	var keywords []string
 	name = strings.Replace(name, wikiSpaceDelimiter, " ", -1)
 	keywords = append(keywords, name)
+	keywords = append(keywords, strings.ToLower(selectNonLettersRegexp.ReplaceAllString(name, "")))
 	keywords = append(keywords, selectNonLettersRegexp.ReplaceAllString(name, ""))
 	return keywords
 }

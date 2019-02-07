@@ -24,7 +24,7 @@ func Open() Client {
 }
 
 // returns root hash of added dir/file
-func (c Client) AddMultiFile(mfr *files.MultiFileReader) (string, error) {
+func (c Client) AddDirectory(mfr *files.MultiFileReader) (string, error) {
 
 	resp, err := c.ipfs.
 		Request("add").
@@ -45,6 +45,17 @@ func (c Client) AddMultiFile(mfr *files.MultiFileReader) (string, error) {
 	}
 
 	return getRootHash(out)
+}
+
+func (c Client) AddFiles(mfr *files.MultiFileReader) error {
+
+	return c.ipfs.
+		Request("add").
+		Body(mfr).
+		Option("recursive", true).
+		Option("wrap-with-directory", true).
+		Option("pin", true).
+		Exec(context.Background(), nil)
 }
 
 func (c Client) CreateDir(path string) error {

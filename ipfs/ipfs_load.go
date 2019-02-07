@@ -42,14 +42,14 @@ func UploadDurasToIpfsCmd() *cobra.Command {
 				mfReader := files.NewMultiFileReader(rootDir, true)
 
 				log.Println("Sending request")
-				hash, err := ipfs.AddMultiFile(mfReader)
+				hash, err := ipfs.AddDirectory(mfReader)
 				if err != nil {
 					return err
 				}
 
 				log.Println("Getting hash: " + hash)
 				hashes = append(hashes, hash)
-				if hasMore == false || len(hashes) == 3 {
+				if hasMore == false {
 					break
 				}
 			}

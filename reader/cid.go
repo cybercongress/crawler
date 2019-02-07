@@ -1,4 +1,4 @@
-package main
+package reader
 
 import (
 	links "github.com/cybercongress/cyberd/x/link/types"

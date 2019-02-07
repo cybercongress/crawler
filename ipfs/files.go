@@ -14,7 +14,7 @@ func getAsDirHierarchy(duras []string, dirMaxWidth int) files.Directory {
 
 	// construct dir
 	if len(duras) <= dirMaxWidth {
-		return constructDir(duras)
+		return ConstructDir(duras)
 	}
 
 	dirsAsEntries := []files.DirEntry{}
@@ -27,7 +27,7 @@ func getAsDirHierarchy(duras []string, dirMaxWidth int) files.Directory {
 	return files.NewSliceDirectory(dirsAsEntries)
 }
 
-func constructDir(duras []string) files.Directory {
+func ConstructDir(duras []string) files.Directory {
 
 	entries := []files.DirEntry{}
 	for i, dura := range duras {
