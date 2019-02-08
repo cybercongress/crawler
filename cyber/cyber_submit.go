@@ -10,9 +10,11 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"io"
+	"log"
 	"os"
 )
 
+// todo add state save
 func SubmitLinksToCyberCmd() *cobra.Command {
 	cmd := cobra.Command{
 		Use:  "submit-links-to-cyber <path-to-wiki-titles-file>",
@@ -47,17 +49,13 @@ func SubmitLinksToCyberCmd() *cobra.Command {
 
 				page := ipfs.RawContentHash(wiki.Dura(title))
 				for _, keyword := range keywords {
-					// todo add retry
-					fromCid, err := ipfsClient.UnixfsContentHash(keyword)
-					if err != nil {
-						return err
-					}
+					fromCid := ipfsClient.GetUnixfsContentHashWithRetryOnError(keyword)
 					links = append(links, types.Link{From: types.Cid(fromCid), To: page})
 					counter++
 				}
 
 				if len(links) >= chunkSize {
-					fmt.Printf("%d %s\n", counter, title)
+					log.Printf("%d %s\n", counter, title)
 					printAccBandwidth(cbdClient)
 
 					err = cbdClient.SubmitLinksSync(links)
@@ -97,6 +95,6 @@ func printAccBandwidth(cbdClient client.CyberdClient) {
 	accBw, err := cbdClient.GetAccountBandwidth()
 	if err == nil {
 		per := int64(100 * float64(accBw.RemainedValue) / float64(accBw.MaxValue))
-		fmt.Printf("Remaining acc bw: %d %v%%\n", accBw.RemainedValue, per)
+		log.Printf("Remaining acc bw: %d %v%%\n", accBw.RemainedValue, per)
 	}
 }

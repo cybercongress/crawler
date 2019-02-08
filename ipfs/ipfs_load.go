@@ -47,17 +47,12 @@ func UploadDurasToIpfsCmd() *cobra.Command {
 				rootDir := getAsDirHierarchy(duras, 500)
 				mfReader := files.NewMultiFileReader(rootDir, true)
 
-				log.Println("Sending request")
-				hash, err := ipfs.AddDirectory(mfReader)
-				if err != nil {
-					return err
-				}
+				log.Println("Uploading dir to ipfs")
+				hash := ipfs.AddDirectoryWithRetryOnError(mfReader)
 
-				log.Println("Getting hash: " + hash)
-				err = ipfs.AddFileToDir(hash, dirPath+strconv.Itoa(hashCount))
-				if err != nil {
-					return err
-				}
+				log.Println("Produced hash: " + hash)
+				ipfs.AddFileToDirWithRetryOnError(hash, dirPath+strconv.Itoa(hashCount))
+
 				if hasMore == false {
 					break
 				}

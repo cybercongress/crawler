@@ -3,6 +3,7 @@ package ipfs
 import (
 	"context"
 	"encoding/json"
+	"github.com/cybercongress/cyberd-wiki-index/util"
 	"github.com/ipfs/go-ipfs-api"
 	"github.com/ipfs/go-ipfs-files"
 	"io/ioutil"
@@ -21,6 +22,16 @@ func Open() Client {
 	return Client{
 		ipfs: shell.NewShell("localhost:5001"),
 	}
+}
+
+func (c Client) AddDirectoryWithRetryOnError(mfr *files.MultiFileReader) string {
+	var err error
+	var dirHash string
+	util.RetryUntilOk(func() error {
+		dirHash, err = c.AddDirectory(mfr)
+		return err
+	}, "Error uploading dir to ipfs")
+	return dirHash
 }
 
 // returns root hash of added dir/file
@@ -44,6 +55,16 @@ func (c Client) AddDirectory(mfr *files.MultiFileReader) (string, error) {
 	}
 
 	return getRootHash(out)
+}
+
+func (c Client) GetUnixfsContentHashWithRetryOnError(content string) string {
+	var err error
+	var fromCid string
+	util.RetryUntilOk(func() error {
+		fromCid, err = c.UnixfsContentHash(content)
+		return err
+	}, "Error obtains keyword hash")
+	return fromCid
 }
 
 func (c Client) UnixfsContentHash(content string) (string, error) {
@@ -85,6 +106,13 @@ func (c Client) CreateDir(path string) error {
 		Arguments(path).
 		Option("parents", true).
 		Exec(context.Background(), nil)
+}
+
+func (c Client) AddFileToDirWithRetryOnError(fileHash string, dirPath string) {
+	util.RetryUntilOk(func() error {
+		err := c.AddFileToDir(fileHash, dirPath)
+		return err
+	}, "Error adding file '"+fileHash+"'to dir '"+dirPath+"' to ipfs")
 }
 
 func (c Client) AddFileToDir(fileHash string, dirPath string) error {
