@@ -1,4 +1,4 @@
-package reader
+package wiki
 
 import (
 	"bufio"
@@ -12,12 +12,12 @@ var wikiSpaceDelimiter = "_"
 var selectNamesRegexp = regexp.MustCompile(`("([^"]|"")*")`)
 var selectNonLettersRegexp = regexp.MustCompile(`[^a-zA-Z0-9]+`)
 
-type WikiTitlesReader struct {
+type TitlesReader struct {
 	file   *os.File
 	reader *bufio.Reader
 }
 
-func Open(path string) (reader WikiTitlesReader, err error) {
+func OpenTitlesReader(path string) (reader TitlesReader, err error) {
 
 	file, err := os.OpenFile(path, 0, 0)
 	if err != nil {
@@ -32,7 +32,7 @@ func Open(path string) (reader WikiTitlesReader, err error) {
 	return
 }
 
-func (wtr WikiTitlesReader) NextTitle() (string, error) {
+func (wtr TitlesReader) NextTitle() (string, error) {
 	line, err := wtr.readLine()
 	if err != nil {
 		return "", err
@@ -42,7 +42,7 @@ func (wtr WikiTitlesReader) NextTitle() (string, error) {
 	return strings.Split(strings.TrimSuffix(line, "\n"), "\t")[1], nil
 }
 
-func (wtr WikiTitlesReader) NextTitles(maxCount int) ([]string, error, bool) {
+func (wtr TitlesReader) NextTitles(maxCount int) ([]string, error, bool) {
 
 	i := 0
 	titles := []string{}
@@ -73,7 +73,7 @@ func (wtr WikiTitlesReader) NextTitles(maxCount int) ([]string, error, bool) {
 // each title consists with names, and regular words
 // each name separated by "" pair. In example case, `Blind_Lemon` is a name.
 // current method should return ["blind lemon", "blind", "lemon", "jefferson"] keywords
-func (wtr WikiTitlesReader) NextTitleWithKeywords() (string, []string, error) {
+func (wtr TitlesReader) NextTitleWithKeywords() (string, []string, error) {
 
 	var keywords []string
 	title, err := wtr.NextTitle()
@@ -103,11 +103,11 @@ func (wtr WikiTitlesReader) NextTitleWithKeywords() (string, []string, error) {
 	return title, filteredKeywords, nil
 }
 
-func (wtr WikiTitlesReader) readLine() (string, error) {
+func (wtr TitlesReader) readLine() (string, error) {
 	return wtr.reader.ReadString('\n')
 }
 
-func (wtr WikiTitlesReader) Close() error {
+func (wtr TitlesReader) Close() error {
 	return wtr.file.Close()
 }
 

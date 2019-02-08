@@ -1,7 +1,7 @@
 package ipfs
 
 import (
-	"github.com/cybercongress/cyberd-wiki-index/reader"
+	"github.com/cybercongress/cyberd-wiki-index/wiki"
 	"github.com/ipfs/go-ipfs-files"
 	"github.com/spf13/cobra"
 	"log"
@@ -17,12 +17,18 @@ func UploadDurasToIpfsCmd() *cobra.Command {
 			chunkSize := 100000
 
 			ipfs := Open()
-			wikiReader, err := reader.Open(args[0])
+			wikiReader, err := wiki.OpenTitlesReader(args[0])
 			if err != nil {
 				return err
 			}
 
-			hashes := []string{}
+			dirPath := "/wiki-duras/"
+			err = ipfs.CreateDir(dirPath)
+			if err != nil {
+				return err
+			}
+
+			hashCount := 0
 			for {
 
 				log.Println("Loading duras")
@@ -34,7 +40,7 @@ func UploadDurasToIpfsCmd() *cobra.Command {
 				}
 
 				for _, title := range titles {
-					duras = append(duras, title+".wiki")
+					duras = append(duras, wiki.Dura(title))
 				}
 
 				log.Println("Creating virtual dirs")
@@ -48,23 +54,14 @@ func UploadDurasToIpfsCmd() *cobra.Command {
 				}
 
 				log.Println("Getting hash: " + hash)
-				hashes = append(hashes, hash)
-				if hasMore == false {
-					break
-				}
-			}
-
-			dirPath := "/wiki-duras/"
-			err = ipfs.CreateDir(dirPath)
-			if err != nil {
-				return err
-			}
-
-			for i, hash := range hashes {
-				err = ipfs.AddFileToDir(hash, dirPath+strconv.Itoa(i))
+				err = ipfs.AddFileToDir(hash, dirPath+strconv.Itoa(hashCount))
 				if err != nil {
 					return err
 				}
+				if hasMore == false {
+					break
+				}
+				hashCount++
 			}
 
 			stat, err := ipfs.DirStat(dirPath)

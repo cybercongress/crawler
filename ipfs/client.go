@@ -30,7 +30,6 @@ func (c Client) AddDirectory(mfr *files.MultiFileReader) (string, error) {
 		Request("add").
 		Body(mfr).
 		Option("recursive", true).
-		//Option("only-hash", true).
 		Option("raw-leaves", true).
 		Option("wrap-with-directory", true).
 		Send(context.Background())
@@ -44,6 +43,28 @@ func (c Client) AddDirectory(mfr *files.MultiFileReader) (string, error) {
 		return "", err
 	}
 
+	return getRootHash(out)
+}
+
+func (c Client) UnixfsContentHash(content string) (string, error) {
+
+	dir := ConstructDir([]string{content})
+	mfr := files.NewMultiFileReader(dir, true)
+	resp, err := c.ipfs.
+		Request("add").
+		Body(mfr).
+		Option("only-hash", true).
+		Option("wrap-with-directory", false).
+		Send(context.Background())
+
+	if err != nil {
+		return "", err
+	}
+
+	out, err := ioutil.ReadAll(resp.Output)
+	if err != nil {
+		return "", err
+	}
 	return getRootHash(out)
 }
 

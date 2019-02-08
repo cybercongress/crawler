@@ -3,7 +3,7 @@ package cyber
 import (
 	"fmt"
 	"github.com/cybercongress/cyberd-wiki-index/ipfs"
-	"github.com/cybercongress/cyberd-wiki-index/reader"
+	"github.com/cybercongress/cyberd-wiki-index/wiki"
 	"github.com/cybercongress/cyberd/client"
 	"github.com/cybercongress/cyberd/x/link/types"
 	"github.com/mitchellh/go-homedir"
@@ -11,7 +11,6 @@ import (
 	"github.com/spf13/viper"
 	"io"
 	"os"
-	"time"
 )
 
 func SubmitLinksToCyberCmd() *cobra.Command {
@@ -22,7 +21,8 @@ func SubmitLinksToCyberCmd() *cobra.Command {
 
 			chunkSize := viper.GetInt("chunk")
 
-			wikiReader, err := reader.Open(args[0])
+			ipfsClient := ipfs.Open()
+			wikiReader, err := wiki.OpenTitlesReader(args[0])
 			if err != nil {
 				return err
 			}
@@ -45,9 +45,14 @@ func SubmitLinksToCyberCmd() *cobra.Command {
 					return err
 				}
 
-				page := title + ".wiki"
+				page := ipfs.RawContentHash(wiki.Dura(title))
 				for _, keyword := range keywords {
-					links = append(links, types.Link{From: ipfs.Cid(keyword), To: ipfs.Cid(page)})
+					// todo add retry
+					fromCid, err := ipfsClient.UnixfsContentHash(keyword)
+					if err != nil {
+						return err
+					}
+					links = append(links, types.Link{From: types.Cid(fromCid), To: page})
 					counter++
 				}
 
@@ -61,7 +66,6 @@ func SubmitLinksToCyberCmd() *cobra.Command {
 					}
 
 					links = make([]types.Link, 0, chunkSize)
-					time.Sleep(10 * time.Second)
 				}
 			}
 			return nil
