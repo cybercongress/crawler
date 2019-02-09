@@ -14,7 +14,6 @@ import (
 	"os"
 )
 
-// todo add state save
 func SubmitLinksToCyberCmd() *cobra.Command {
 	cmd := cobra.Command{
 		Use:  "submit-links-to-cyber <path-to-wiki-titles-file>",
@@ -22,6 +21,7 @@ func SubmitLinksToCyberCmd() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 
 			chunkSize := viper.GetInt("chunk")
+			offset := viper.GetInt64("offset")
 
 			ipfsClient := ipfs.Open()
 			wikiReader, err := wiki.OpenTitlesReader(args[0])
@@ -45,6 +45,9 @@ func SubmitLinksToCyberCmd() *cobra.Command {
 						break
 					}
 					return err
+				}
+				if offset >= counter {
+					continue
 				}
 
 				page := ipfs.RawContentHash(wiki.Dura(title))
@@ -81,12 +84,14 @@ func SubmitLinksToCyberCmd() *cobra.Command {
 	cmd.Flags().String(client.FlagNode, "127.0.0.1:26657", "Url of node communicate with")
 	cmd.Flags().String(client.FlagHome, homeDir+"/.cyberdcli", "Cyberd CLI home folder")
 	cmd.Flags().Int("chunk", 1000, "How many links put into single transaction")
+	cmd.Flags().Int64("offset", 0, "How many pages to skip, before submitting links")
 
 	_ = viper.BindPFlag(client.FlagPassphrase, cmd.Flags().Lookup(client.FlagPassphrase))
 	_ = viper.BindPFlag(client.FlagAddress, cmd.Flags().Lookup(client.FlagAddress))
 	_ = viper.BindPFlag(client.FlagNode, cmd.Flags().Lookup(client.FlagNode))
 	_ = viper.BindPFlag(client.FlagHome, cmd.Flags().Lookup(client.FlagHome))
 	_ = viper.BindPFlag("chunk", cmd.Flags().Lookup("chunk"))
+	_ = viper.BindPFlag("offset", cmd.Flags().Lookup("offset"))
 
 	return &cmd
 }
