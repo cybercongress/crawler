@@ -24,8 +24,8 @@ github.com/cosmos/cosmos-sdk v0.30.0 h1:DUpcAqHalX2IEvum2wjPIos6sRcOYVd1wNSfiQ+w
 github.com/cosmos/cosmos-sdk v0.30.0/go.mod h1:JrX/JpJunJQXBI5PEX2zELHMFzQr/159jDjIhesOh2c=
 github.com/cosmos/go-bip39 v0.0.0-20180618194314-52158e4697b8 h1:Iwin12wRQtyZhH6FV3ykFcdGNlYEzoeR0jN8Vn+JWsI=
 github.com/cosmos/go-bip39 v0.0.0-20180618194314-52158e4697b8/go.mod h1:tSxLoYXyBmiFeKpvmq4dzayMdCjCnu8uqmCysIGBT2Y=
-github.com/cybercongress/cyberd v0.0.0-20190207064716-0f7e5aa2b991 h1:jdXDfT8XpKCU4G90AI1d3wBM5q/0uzeXNy3UGOaNxVA=
-github.com/cybercongress/cyberd v0.0.0-20190207064716-0f7e5aa2b991/go.mod h1:48kakPewT443DJvjkuk8mTLZnPSpPa5kGVNTH0seWsE=
+github.com/cybercongress/cyberd v0.0.0-20190215060235-3342072877b6 h1:yHlAcCfTAa1WVA2zgP4wcCmOdVM2eTIu3uvSKavLGwI=
+github.com/cybercongress/cyberd v0.0.0-20190215060235-3342072877b6/go.mod h1:ZW7RlWhwaL2OAHjtHbdPGhefVMLGR2En7CJPGHlML9Q=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/fortytw2/leaktest v1.2.0 h1:cj6GCiwJDH7l3tMHLjZDo0QqPtrXJiWSI9JgpeQKw+Q=

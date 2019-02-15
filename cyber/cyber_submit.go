@@ -22,6 +22,7 @@ func SubmitLinksToCyberCmd() *cobra.Command {
 
 			chunkSize := viper.GetInt("chunk")
 			offset := viper.GetInt64("offset")
+			onlyNew := viper.GetBool("only-new")
 
 			ipfsClient := ipfs.Open()
 			wikiReader, err := wiki.OpenTitlesReader(args[0])
@@ -30,7 +31,7 @@ func SubmitLinksToCyberCmd() *cobra.Command {
 			}
 
 			cbdClient := client.NewHttpCyberdClient(
-				viper.GetString(client.FlagNode),
+				"127.0.0.1:26657",
 				viper.GetString(client.FlagPassphrase),
 				viper.GetString(client.FlagAddress),
 			)
@@ -39,6 +40,7 @@ func SubmitLinksToCyberCmd() *cobra.Command {
 			links := make([]types.Link, 0, chunkSize)
 			for {
 
+				counter++
 				title, keywords, err := wikiReader.NextTitleWithKeywords()
 				if err != nil {
 					if err == io.EOF {
@@ -54,14 +56,13 @@ func SubmitLinksToCyberCmd() *cobra.Command {
 				for _, keyword := range keywords {
 					fromCid := ipfsClient.GetUnixfsContentHashWithRetryOnError(keyword)
 					links = append(links, types.Link{From: types.Cid(fromCid), To: page})
-					counter++
 				}
 
 				if len(links) >= chunkSize {
-					log.Printf("%d %s\n", counter, title)
-					printAccBandwidth(cbdClient)
 
-					err = cbdClient.SubmitLinksSync(links)
+					printAccBandwidth(cbdClient)
+					err = cbdClient.SubmitLinksSync(links, onlyNew)
+					log.Printf("%d %s\n", counter, title)
 					if err != nil {
 						return err
 					}
@@ -81,17 +82,17 @@ func SubmitLinksToCyberCmd() *cobra.Command {
 
 	cmd.Flags().String(client.FlagAddress, "", "Address to sign transactions")
 	cmd.Flags().String(client.FlagPassphrase, "", "Passphrase of account")
-	cmd.Flags().String(client.FlagNode, "127.0.0.1:26657", "Url of node communicate with")
 	cmd.Flags().String(client.FlagHome, homeDir+"/.cyberdcli", "Cyberd CLI home folder")
 	cmd.Flags().Int("chunk", 1000, "How many links put into single transaction")
 	cmd.Flags().Int64("offset", 0, "How many pages to skip, before submitting links")
+	cmd.Flags().Bool("only-new", true, "Submit link only if nobody do the same link already")
 
 	_ = viper.BindPFlag(client.FlagPassphrase, cmd.Flags().Lookup(client.FlagPassphrase))
 	_ = viper.BindPFlag(client.FlagAddress, cmd.Flags().Lookup(client.FlagAddress))
-	_ = viper.BindPFlag(client.FlagNode, cmd.Flags().Lookup(client.FlagNode))
 	_ = viper.BindPFlag(client.FlagHome, cmd.Flags().Lookup(client.FlagHome))
 	_ = viper.BindPFlag("chunk", cmd.Flags().Lookup("chunk"))
 	_ = viper.BindPFlag("offset", cmd.Flags().Lookup("offset"))
+	_ = viper.BindPFlag("only-new", cmd.Flags().Lookup("only-new"))
 
 	return &cmd
 }

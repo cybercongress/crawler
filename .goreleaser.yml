@@ -1,9 +1,9 @@
-project_name: cyberd-wiki
+project_name: cyber-wiki
 
 builds:
   -
     main: ./
-    binary: cyberd-wiki
+    binary: cyber-wiki
     goos:
       - linux
       - darwin

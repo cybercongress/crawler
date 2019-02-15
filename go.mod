@@ -3,7 +3,7 @@ module github.com/cybercongress/cyberd-wiki-index
 require (
 	github.com/agl/ed25519 v0.0.0-20170116200512-5312a6153412 // indirect
 	github.com/cheekybits/is v0.0.0-20150225183255-68e9c0620927 // indirect
-	github.com/cybercongress/cyberd v0.0.0-20190207064716-0f7e5aa2b991
+	github.com/cybercongress/cyberd v0.0.0-20190215060235-3342072877b6
 	github.com/ipfs/go-cid v0.9.0
 	github.com/ipfs/go-ipfs-api v1.3.3-0.20190129155155-21af6be7f0a6
 	github.com/ipfs/go-ipfs-files v0.0.0-20190129220759-267cdfe2e27a

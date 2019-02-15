@@ -5,7 +5,7 @@ aliases:
   - &defaults
     working_directory: ~/build
     docker:
-      - image: circleci/golang:1.11.2
+      - image: circleci/golang:1.11.5
   - &release_filter
     filters:
       tags:
@@ -29,7 +29,7 @@ jobs:
       - run:
           name: Build And Test Project
           command: |
-            go build -o cyberd-wiki ./
+            go build -o cyber-wiki ./
 
   update_changelog:
     <<: *defaults
@@ -59,7 +59,7 @@ jobs:
       - run:
           name: Github Release Binaries
           command: |
-            go build -o cyberd-wiki ./
+            go build -o cyber-wiki ./
             sudo apt-get update && sudo apt-get install -y rpm
             curl -sL https://git.io/goreleaser | bash
 

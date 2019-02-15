@@ -14,6 +14,17 @@ type addResponse struct {
 	Hash string
 }
 
+type lsResponse struct {
+	Entries []lsEntryResponse
+}
+
+type lsEntryResponse struct {
+	Name string
+	Type int
+	Size int
+	Hash string
+}
+
 type Client struct {
 	ipfs *shell.Shell
 }
@@ -106,6 +117,26 @@ func (c Client) CreateDir(path string) error {
 		Arguments(path).
 		Option("parents", true).
 		Exec(context.Background(), nil)
+}
+
+func (c Client) GetDirEntriesName(path string) ([]string, error) {
+
+	var entries lsResponse
+	var entriesNames = make([]string, 0)
+
+	err := c.ipfs.
+		Request("files/ls").
+		Arguments(path).
+		Option("parents", true).
+		Exec(context.Background(), entries)
+
+	if err != nil {
+		for _, entry := range entries.Entries {
+			entriesNames = append(entriesNames, entry.Name)
+		}
+	}
+
+	return entriesNames, err
 }
 
 func (c Client) AddFileToDirWithRetryOnError(fileHash string, dirPath string) {
