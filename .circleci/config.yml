@@ -65,17 +65,13 @@ jobs:
 
 workflows:
   version: 2
-  cyberd_build:
+  default_workflow:
     jobs:
       - build_and_test:
           filters:
             tags:
               only: /.*/
       - update_changelog:
-          <<: *master_filter
-          requires:
-            - build_and_test
-      - update_docs:
           <<: *master_filter
           requires:
             - build_and_test

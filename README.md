@@ -20,11 +20,28 @@
 
 ## Usage
 
+### Submit links
 Basically, there are two main functions provided by `cyber-wiki` tool. 
 The first one is to parse wiki titles and submit links between keywords and wiki pages. 
 ```
-submit-links-to-cyber enwiki-latest-all-titles --offset=0 --address=007
+submit-links-to-cyber /home/user/enwiki-latest-all-titles --address=cli_acc_y0y
 ```
+
+Here, **enwiki-latest-all-titles** is titles file obtained from 
+ [official Wiki dumps](https://dumps.wikimedia.org/enwiki/latest/enwiki-latest-all-titles-in-ns0.gz).  
+
+> Note: Uses only local cyber node.
+
+> Note: Submit links do not add duras to ipfs.
+
+### Uploading duras to IPFS 
+Also, `cyber-wiki` has separate command `upload-duras-to-ipfs` to upload files to local IPFS. 
+All duras are collected under single root unixfs directory.
+```
+upload-duras-to-ipfs /home/user/enwiki-latest-all-titles
+```
+> Note: We already upload duras. 
+They can be downloaded and pined on yor local node by **Qmdwsryu8HskLzBspzPwJbL8UZ1ZPZF8VemtW1ja1GMXGp** hash.
 
 ## Issues
 
