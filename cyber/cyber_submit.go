@@ -3,6 +3,7 @@ package cyber
 import (
 	"fmt"
 	"github.com/cybercongress/cyberd-wiki-index/ipfs"
+	"github.com/cybercongress/cyberd-wiki-index/state"
 	"github.com/cybercongress/cyberd-wiki-index/wiki"
 	"github.com/cybercongress/cyberd/client"
 	"github.com/cybercongress/cyberd/x/link/types"
@@ -14,15 +15,20 @@ import (
 	"os"
 )
 
-func SubmitLinksToCyberCmd() *cobra.Command {
+func SubmitLinksToCyberCmd(state state.IndexState) *cobra.Command {
 	cmd := cobra.Command{
 		Use:  "submit-links-to-cyber <path-to-wiki-titles-file>",
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 
 			chunkSize := viper.GetInt("chunk")
-			offset := viper.GetInt64("offset")
 			onlyNew := viper.GetBool("only-new")
+
+			offset := viper.GetInt64("offset")
+			if offset == -1 {
+				offset = state.SubmitLinksOffset
+			}
+			log.Printf("Continue submit wiki duras from %v offset\n", offset)
 
 			ipfsClient := ipfs.Open()
 			wikiReader, err := wiki.OpenTitlesReader(args[0])
@@ -62,12 +68,25 @@ func SubmitLinksToCyberCmd() *cobra.Command {
 
 					printAccBandwidth(cbdClient)
 					err = cbdClient.SubmitLinksSync(links, onlyNew)
-					log.Printf("%d %s\n", counter, title)
 					if err != nil {
 						return err
 					}
 
+					log.Printf("%d %s\n", counter, title)
+					state.SubmitLinksOffset = counter
+					if err := state.Save(); err != nil {
+						return err
+					}
+
 					links = make([]types.Link, 0, chunkSize)
+				}
+
+				// catch-up saving
+				if counter%int64(chunkSize) == 0 && len(links) == 0 {
+					state.SubmitLinksOffset = counter
+					if err := state.Save(); err != nil {
+						return err
+					}
 				}
 			}
 			return nil
@@ -84,7 +103,7 @@ func SubmitLinksToCyberCmd() *cobra.Command {
 	cmd.Flags().String(client.FlagPassphrase, "", "Passphrase of account")
 	cmd.Flags().String(client.FlagHome, homeDir+"/.cyberdcli", "Cyberd CLI home folder")
 	cmd.Flags().Int("chunk", 1000, "How many links put into single transaction")
-	cmd.Flags().Int64("offset", 0, "How many pages to skip, before submitting links")
+	cmd.Flags().Int64("offset", -1, "How many pages to skip, before submitting links")
 	cmd.Flags().Bool("only-new", true, "Submit link only if nobody do the same link already")
 
 	_ = viper.BindPFlag(client.FlagPassphrase, cmd.Flags().Lookup(client.FlagPassphrase))
