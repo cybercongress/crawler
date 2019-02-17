@@ -12,7 +12,9 @@ import (
 	"github.com/spf13/viper"
 	"io"
 	"log"
+	"math/rand"
 	"os"
+	"time"
 )
 
 func SubmitLinksToCyberCmd(state state.IndexState) *cobra.Command {
@@ -66,13 +68,14 @@ func SubmitLinksToCyberCmd(state state.IndexState) *cobra.Command {
 
 				if len(links) >= chunkSize {
 
-					printAccBandwidth(cbdClient)
+					//check that acc hash enough bw, in other case sleep for random duration over 6h
+					insureAccBandwidth(cbdClient)
 					err = cbdClient.SubmitLinksSync(links, onlyNew)
 					if err != nil {
 						return err
 					}
 
-					log.Printf("%d %s\n", counter, title)
+					log.Printf("offset: %d title: `%s`\n", counter, title)
 					state.SubmitLinksOffset = counter
 					if err := state.Save(); err != nil {
 						return err
@@ -116,10 +119,17 @@ func SubmitLinksToCyberCmd(state state.IndexState) *cobra.Command {
 	return &cmd
 }
 
-func printAccBandwidth(cbdClient client.CyberdClient) {
+func insureAccBandwidth(cbdClient client.CyberdClient) {
 	accBw, err := cbdClient.GetAccountBandwidth()
 	if err == nil {
 		per := int64(100 * float64(accBw.RemainedValue) / float64(accBw.MaxValue))
 		log.Printf("Remaining acc bw: %d %v%%\n", accBw.RemainedValue, per)
+	}
+
+	if accBw.RemainedValue < 12000 {
+		seconds := time.Duration(rand.Intn(60 * 60 * 6))
+		log.Printf("Low bandwidth. Sleeping for %v seconds\n", seconds)
+		time.Sleep(seconds * time.Second)
+		log.Printf("Resuming indexation\n")
 	}
 }
