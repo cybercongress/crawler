@@ -18,35 +18,64 @@
 
 ## Installation
 
+Note: Requires Go 1.12+
+
+```
+git clone https://github.com/cybercongress/crawler
+cd crawler
+go build -o crawler
+```
+
+## Preparation
+
+1. IPFS daemon should be launched
+2. Download enwiki-latest-all-titles to crawler root dir: 
+
+``` 
+ipfs get QmddV5QP87BZGiSUCf9x9hsqM73b83rsPC6AYMNqkjKMGx -o enwiki-latest-all-titles
+```
+
+3. Add account to cyberdcli: 
+
+```
+docker exec -ti cyberd cyberdcli keys add <name> --recover
+```
+
 ## Usage
 
 ### Submit links
-Basically, there are two main functions provided by `cyber-wiki` tool. 
+Basically, there are two main functions provided by `crawler` tool. 
 The first one is to parse wiki titles and submit links between keywords and wiki pages. 
 ```
-submit-links-to-cyber /home/user/enwiki-latest-all-titles --address=cli_acc_y0y
+./crawler submit-links-to-cyber ./enwiki-latest-all-titles --home=<path-to-cyberdcli> --address=<account> --passphrase=<passphrase> --chunk=100
+```
+
+> Note: Uses only local cyberd node.
+
+> Note: Submit links do not add duras to IPFS.
+
+> Note: Chunk - how many links messages added to one tx
+
+> Note: There is --help command, for example 
+
+```
+./crawler submit-links-to-cyber --help
 ```
 
 Here, **enwiki-latest-all-titles** is titles file obtained from 
  [official Wiki dumps](https://dumps.wikimedia.org/enwiki/latest/enwiki-latest-all-titles-in-ns0.gz).  
 
-> Note: Uses only local cyber node.
-
-> Note: Submit links do not add duras to ipfs.
-
 ### Uploading duras to IPFS 
-Also, `cyber-wiki` has separate command `upload-duras-to-ipfs` to upload files to local IPFS. 
-All duras are collected under single root unixfs directory.
+Also, `crawler` has separate command `upload-duras-to-ipfs` to upload files to local IPFS node. 
+All DURAs are collected under single root unixfs directory.
 ```
-upload-duras-to-ipfs /home/user/enwiki-latest-all-titles
+./crawler upload-duras-to-ipfs enwiki-latest-all-titles
 ```
-> Note: We already upload duras. 
-They can be downloaded and pined on yor local node by **Qmdwsryu8HskLzBspzPwJbL8UZ1ZPZF8VemtW1ja1GMXGp** hash.
 
 ## Issues
 
 If you have any problems with or questions about search, please contact us through a
- [GitHub issue](https://github.com/cybercongress/cyber-wiki-index/issues).
+ [GitHub issue](https://github.com/cybercongress/crawler/issues).
 
 ## Contributing
 
@@ -62,5 +91,5 @@ Stay tuned with our [Changelog](./CHANGELOG.md).
 <div align="center">
   <sub>Built by
   <a href="https://twitter.com/cyber_devs">cyber•Congress</a> and
-  <a href="https://github.com/cybercongress/cyber-wiki-index/graphs/contributors">contributors</a>
+  <a href="https://github.com/cybercongress/crawler/graphs/contributors">contributors</a>
 </div>
