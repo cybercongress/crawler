@@ -3,7 +3,7 @@ package ipfs
 import (
 	"context"
 	"encoding/json"
-	"github.com/cybercongress/cyberd-wiki-index/util"
+	"github.com/cybercongress/crawler/util"
 	"github.com/ipfs/go-ipfs-api"
 	"github.com/ipfs/go-ipfs-files"
 	"io/ioutil"

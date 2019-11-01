@@ -2,11 +2,11 @@ package cyber
 
 import (
 	"fmt"
-	"github.com/cybercongress/cyberd-wiki-index/ipfs"
-	"github.com/cybercongress/cyberd-wiki-index/state"
-	"github.com/cybercongress/cyberd-wiki-index/wiki"
+	"github.com/cybercongress/crawler/ipfs"
+	"github.com/cybercongress/crawler/state"
+	"github.com/cybercongress/crawler/wiki"
 	"github.com/cybercongress/cyberd/client"
-	"github.com/cybercongress/cyberd/x/link/types"
+	"github.com/cybercongress/cyberd/x/link"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -45,7 +45,7 @@ func SubmitLinksToCyberCmd(state state.IndexState) *cobra.Command {
 			)
 
 			counter := int64(0)
-			links := make([]types.Link, 0, chunkSize)
+			links := make([]link.Link, 0, chunkSize)
 			for {
 
 				counter++
@@ -63,7 +63,7 @@ func SubmitLinksToCyberCmd(state state.IndexState) *cobra.Command {
 				page := ipfs.RawContentHash(wiki.Dura(title))
 				for _, keyword := range keywords {
 					fromCid := ipfsClient.GetUnixfsContentHashWithRetryOnError(keyword)
-					links = append(links, types.Link{From: types.Cid(fromCid), To: page})
+					links = append(links, link.Link{From: link.Cid(fromCid), To: page})
 				}
 
 				if len(links) >= chunkSize {
@@ -81,7 +81,7 @@ func SubmitLinksToCyberCmd(state state.IndexState) *cobra.Command {
 						return err
 					}
 
-					links = make([]types.Link, 0, chunkSize)
+					links = make([]link.Link, 0, chunkSize)
 				}
 
 				// catch-up saving

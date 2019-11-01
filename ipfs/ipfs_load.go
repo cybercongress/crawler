@@ -1,7 +1,7 @@
 package ipfs
 
 import (
-	"github.com/cybercongress/cyberd-wiki-index/wiki"
+	"github.com/cybercongress/crawler/wiki"
 	"github.com/ipfs/go-ipfs-files"
 	"github.com/spf13/cobra"
 	"log"

@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/cybercongress/cyberd-wiki-index/cyber"
-	"github.com/cybercongress/cyberd-wiki-index/ipfs"
-	"github.com/cybercongress/cyberd-wiki-index/state"
+	"github.com/cybercongress/crawler/cyber"
+	"github.com/cybercongress/crawler/ipfs"
+	"github.com/cybercongress/crawler/state"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"os"

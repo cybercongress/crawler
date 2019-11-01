@@ -1,7 +1,7 @@
 package ipfs
 
 import (
-	links "github.com/cybercongress/cyberd/x/link/types"
+	links "github.com/cybercongress/cyberd/x/link"
 	"github.com/ipfs/go-cid"
 	"github.com/multiformats/go-multihash"
 )
